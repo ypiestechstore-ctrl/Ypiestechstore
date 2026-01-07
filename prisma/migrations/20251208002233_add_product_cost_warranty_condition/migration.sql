@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE `Product` ADD COLUMN `condition` VARCHAR(191) NOT NULL DEFAULT 'New',
+    ADD COLUMN `costPrice` DOUBLE NOT NULL DEFAULT 0,
+    ADD COLUMN `warrantyPeriod` VARCHAR(191) NULL;
