@@ -18,8 +18,7 @@ const nextConfig: NextConfig = {
     ],
   },
   output: "standalone",
+  allowedDevOrigins: ["*"],
 };
 
 export default nextConfig;
-
-// touching file to trigger restart

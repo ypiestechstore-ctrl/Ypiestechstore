@@ -1,16 +1,9 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  binaryTargets = ["native", "rhel-openssl-1.0.x", "debian-openssl-1.1.x"]
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -18,8 +11,8 @@ model Product {
   id              String   @id @default(uuid())
   sku             String?  @unique
   name            String
-  description     String   @db.Text
-  shortDescription String? @db.Text
+  description     String
+  shortDescription String?
   price           Float
   image           String
   category        String
@@ -46,7 +39,7 @@ model ProductImage {
 
 model Category {
   id        String   @id @default(uuid())
-  name      String   @unique // Keeping unique for simplicity in imports
+  name      String   @unique
   slug      String?  @unique
   isFeatured Boolean  @default(false)
   
@@ -64,7 +57,7 @@ model Category {
 model User {
   id            String    @id @default(uuid())
   email         String    @unique
-  password      String?    // Optional for invited users who haven't set it yet
+  password      String?
   role          String    @default("customer")
   name          String?
   contactNumber String?
@@ -90,15 +83,14 @@ model Order {
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
   
-  userId    String?     // Nullable for guest checkout if needed, but for logged in users strictly link it
+  userId    String?
   user      User?       @relation(fields: [userId], references: [id])
   invoice   Invoice?
 
-  // Guest / Shipping Details
   customerName    String?
   customerEmail   String?
   shippingAddress String?
-  paymentMethod   String?  @default("eft") // eft, cash
+  paymentMethod   String?  @default("eft")
 }
 
 model OrderItem {
@@ -115,9 +107,9 @@ model OrderItem {
 model Quote {
   id           String      @id @default(uuid())
   total        Float
-  status       String      @default("Draft") // Draft, Sent, Accepted, Rejected, Invoiced
-  customerName String?     // Snapshot for quick display or non-registered users
-  customerEmail String?    // Snapshot
+  status       String      @default("Draft")
+  customerName String?
+  customerEmail String?
   items        QuoteItem[]
   
   userId       String?
@@ -136,7 +128,7 @@ model QuoteItem {
   id          String  @id @default(uuid())
   quoteId     String
   quote       Quote   @relation(fields: [quoteId], references: [id])
-  productId   String? // Optional if custom item
+  productId   String?
   name        String
   price       Float
   quantity    Int
@@ -147,7 +139,7 @@ model QuoteItem {
 model Invoice {
   id        String   @id @default(uuid())
   total     Float
-  status    String   @default("Unpaid") // Unpaid, Paid, Overdue
+  status    String   @default("Unpaid")
   customerName String?
   customerEmail String?
   
@@ -157,7 +149,7 @@ model Invoice {
   quoteId   String?  @unique
   quote     Quote?   @relation(fields: [quoteId], references: [id])
   
-  userId    String?  // Optional if invoice for guest
+  userId    String?
   user      User?    @relation("CustomerInvoices", fields: [userId], references: [id])
   
   salesPersonId String?
@@ -175,7 +167,7 @@ model SerialNumber {
   productId   String
   product     Product    @relation(fields: [productId], references: [id])
   
-  status      String     @default("IN_STOCK") // IN_STOCK, SOLD, RMA, RETURNED
+  status      String     @default("IN_STOCK")
   
   orderItemId String?
   orderItem   OrderItem? @relation(fields: [orderItemId], references: [id])
@@ -194,7 +186,7 @@ model BankDetail {
   accountName   String
   accountNumber String
   branchCode    String
-  isVisible     Boolean  @default(true) // To toggle display without deleting
+  isVisible     Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
