@@ -4,7 +4,7 @@
 A Next.js e-commerce application for a computer/tech store with product catalog, shopping cart, checkout, quotes, invoices, and admin dashboard.
 
 ## Tech Stack
-- **Framework**: Next.js 16 (App Router, React 19)
+- **Framework**: Next.js 15.0.8 (App Router, React 19)
 - **Database**: PostgreSQL via Prisma ORM
 - **Styling**: Tailwind CSS v4
 - **UI**: Radix UI components, Framer Motion animations
