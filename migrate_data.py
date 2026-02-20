@@ -120,7 +120,7 @@ def migrate():
             # However, MySQL and PG column orders might differ if Prisma 
             # generated them differently. 
             # To be safer, we should probably fetch the column names from the PG table first.
-            cur.execute(f"SELECT column_name FROM information_schema.columns WHERE table_name = '{pg_table}' AND table_schema = 'public' ORDER BY ordinal_position")
+            cur.execute("SELECT column_name FROM information_schema.columns WHERE table_name = %s AND table_schema = 'public' ORDER BY ordinal_position", (pg_table,))
             pg_cols = [r[0] for r in cur.fetchall()]
             
             # Filter rows to match column count if necessary, or just try to insert
