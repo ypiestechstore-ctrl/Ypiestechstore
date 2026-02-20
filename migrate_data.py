@@ -1,6 +1,7 @@
 import re
 import os
 import psycopg2
+from psycopg2 import sql
 from datetime import datetime
 
 def clean_val(val, table, col_idx):
@@ -124,7 +125,11 @@ def migrate():
             pg_cols = [r[0] for r in cur.fetchall()]
             
             # Filter rows to match column count if necessary, or just try to insert
-            insert_query = f"INSERT INTO \"{pg_table}\" ({', '.join([f'\"{c}\"' for c in pg_cols])}) VALUES ({placeholders}) ON CONFLICT DO NOTHING"
+            insert_query = sql.SQL("INSERT INTO {} ({}) VALUES ({}) ON CONFLICT DO NOTHING").format(
+                sql.Identifier(pg_table),
+                sql.SQL(', ').join(map(sql.Identifier, pg_cols)),
+                sql.SQL(placeholders)
+            )
             
             for row in rows:
                 if len(row) != len(pg_cols):
@@ -137,7 +142,11 @@ def migrate():
                     # Try to insert anyway if dump has fewer, PG will use defaults
                     short_cols = pg_cols[:len(row)]
                     short_placeholders = ", ".join(["%s"] * len(row))
-                    q = f"INSERT INTO \"{pg_table}\" ({', '.join([f'\"{c}\"' for c in short_cols])}) VALUES ({short_placeholders}) ON CONFLICT DO NOTHING"
+                    q = sql.SQL("INSERT INTO {} ({}) VALUES ({}) ON CONFLICT DO NOTHING").format(
+                        sql.Identifier(pg_table),
+                        sql.SQL(', ').join(map(sql.Identifier, short_cols)),
+                        sql.SQL(short_placeholders)
+                    )
                     cur.execute(q, row)
                 else:
                     cur.execute(insert_query, row)
