@@ -19,7 +19,6 @@ async function createSuperAdmin() {
         });
         console.log('Super Admin created/updated:');
         console.log('Email:', user.email);
-        console.log('Password:', user.password);
     } catch (error) {
         console.error('Error creating super admin:', error);
     } finally {
