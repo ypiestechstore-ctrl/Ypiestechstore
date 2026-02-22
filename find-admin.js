@@ -13,7 +13,6 @@ async function findSuperAdmin() {
         if (superAdmin) {
             console.log('Super Admin found:');
             console.log('Email:', superAdmin.email);
-            console.log('Password:', superAdmin.password);
         } else {
             console.log('No super-admin found.');
 
