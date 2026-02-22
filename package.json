@@ -30,7 +30,7 @@
     "jspdf": "^4.1.0",
     "jspdf-autotable": "^5.0.7",
     "lucide-react": "^0.555.0",
-    "next": "15.0.8",
+    "next": "15.1.8",
     "papaparse": "^5.5.3",
     "prisma": "^5.22.0",
     "react": "19.2.0",
@@ -43,7 +43,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "15.0.8",
+    "eslint-config-next": "^15.1.8",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
