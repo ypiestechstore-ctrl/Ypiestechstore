@@ -9,19 +9,23 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
         }
 
+        console.log("Login attempt for:", email);
         const user = await prisma.user.findUnique({
             where: { email },
         });
 
         if (!user) {
+            console.log("User not found:", email);
             return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
         }
 
-        // In a real app, use bcrypt.compare(password, user.password)
-        // Check if password matches (plain text for now as per previous context)
+        // Check if password matches
         if (user.password !== password) {
+            console.log("Password mismatch for:", email);
             return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
         }
+
+        console.log("Login successful for:", email, "Role:", user.role);
 
         // Return user info (excluding password)
         const { password: _, ...userWithoutPassword } = user;

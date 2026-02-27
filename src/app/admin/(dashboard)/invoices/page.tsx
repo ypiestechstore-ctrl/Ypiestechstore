@@ -22,7 +22,6 @@ export default function InvoicesPage() {
     const [isLoading, setIsLoading] = useState(true);
 
     const isSuperAdmin = user?.role === "super-admin";
-    console.log("Invoice Page - User Role:", user?.role, "isSuperAdmin:", isSuperAdmin);
 
     useEffect(() => {
         fetchInvoices();
