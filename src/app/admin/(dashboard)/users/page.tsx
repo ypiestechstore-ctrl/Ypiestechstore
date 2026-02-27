@@ -58,6 +58,7 @@ export default function UsersPage() {
     });
 
     const isSuperAdmin = currentUser?.role === "super-admin";
+    console.log("Current User Role:", currentUser?.role, "isSuperAdmin:", isSuperAdmin);
 
     useEffect(() => {
         fetchUsers();

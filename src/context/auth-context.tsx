@@ -50,6 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const res = await fetch(`/api/users/${id}`);
             if (res.ok) {
                 const latestUser = await res.json();
+                console.log("Logged in as:", latestUser.email, "Role:", latestUser.role);
                 const newUser = {
                     id: latestUser.id,
                     email: latestUser.email,
