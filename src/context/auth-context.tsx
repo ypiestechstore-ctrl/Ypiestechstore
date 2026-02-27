@@ -31,14 +31,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const initializeAuth = () => {
             const storedUser = localStorage.getItem("computer-store-user");
             if (storedUser) {
-                setUser(JSON.parse(storedUser));
+                try {
+                    const parsed = JSON.parse(storedUser);
+                    // Basic validation to ensure role is correct
+                    setUser(parsed);
+                } catch (e) {
+                    localStorage.removeItem("computer-store-user");
+                }
             }
             setIsLoading(false);
         };
         initializeAuth();
     }, []);
 
-    const login = (id: string, email: string, role: UserRole, name?: string) => {
+    const login = async (id: string, email: string, role: UserRole, name?: string) => {
+        // Fetch latest user data from server to ensure role is up to date
+        try {
+            const res = await fetch(`/api/users/${id}`);
+            if (res.ok) {
+                const latestUser = await res.json();
+                const newUser = {
+                    id: latestUser.id,
+                    email: latestUser.email,
+                    name: latestUser.name || latestUser.email.split("@")[0],
+                    role: latestUser.role as UserRole,
+                };
+                setUser(newUser);
+                localStorage.setItem("computer-store-user", JSON.stringify(newUser));
+                
+                if (newUser.role === "admin" || newUser.role === "super-admin") {
+                    router.push("/admin");
+                } else {
+                    router.push("/dashboard");
+                }
+                return;
+            }
+        } catch (e) {
+            console.error("Auth sync error:", e);
+        }
+
+        // Fallback to provided data if fetch fails
         const newUser = {
             id,
             email,
