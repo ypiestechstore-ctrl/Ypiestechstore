@@ -20,8 +20,8 @@ export async function POST(request: Request) {
         }
 
         // Check if password matches
-        if (user.password !== password) {
-            console.log("Password mismatch for:", email);
+        if (!user.password || user.password !== password) {
+            console.log("Password mismatch for:", email, "Expected:", user.password, "Received:", password);
             return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
         }
 
