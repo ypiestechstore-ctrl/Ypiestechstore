@@ -198,9 +198,7 @@ export default function LoginPage() {
                                     </Button>
                                 </div>
                                 <div className="text-center text-sm text-muted-foreground mt-4">
-                                    <p>Try <span className="font-mono font-bold text-primary">admin@example.com</span> for Admin access</p>
-                                    <p>Try <span className="font-mono font-bold text-primary">user@example.com</span> for Customer access</p>
-                                    <p>Password: any</p>
+                                    <p className="text-xs italic">Secure authentication enabled.</p>
                                 </div>
                             </form>
                         </TabsContent>
