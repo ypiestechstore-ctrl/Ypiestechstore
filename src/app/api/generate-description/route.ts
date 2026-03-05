@@ -1,4 +1,10 @@
 import { NextResponse } from "next/server";
+import OpenAI from "openai";
+
+const openai = new OpenAI({
+    apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
+    baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+});
 
 export async function POST(request: Request) {
     try {
@@ -8,119 +14,58 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Product title is required" }, { status: 400 });
         }
 
-        // Mock AI Generation - simulating an LLM response
-        // In a real app, this would fetch from OpenAI/Gemini/Anthropic
+        const systemPrompt = `You are a professional e-commerce copywriter for a South African computer and tech store called "Ypies Tech Store". You write accurate, SEO-friendly product descriptions.
 
-        // Mock AI Generation - simulating a more advanced LLM response
-        // SEO-friendly, detailed descriptions
+Your task is to generate TWO descriptions for the given product:
 
-        let description = "";
-        let shortDescription = "";
+1. **shortDescription**: A concise 1-2 sentence summary (max 200 characters) that highlights the key selling point. This appears on product cards in the catalog. Be specific about the actual specs mentioned in the product name.
 
-        // Keywords for SEO injection
-        const keywords = {
-            prebuilt: "gaming PC, desktop computer, high FPS, custom rig, workstation",
-            laptop: "gaming laptop, portable workstation, ultrabook, notebook",
-            component: "PC parts, upgrade, hardware, performance, custom build",
-            peripheral: "gaming gear, accessories, input device, ergonomic"
-        };
+2. **description**: A detailed product description (3-5 paragraphs) that includes:
+   - An accurate overview of the product and its real-world use cases
+   - Actual technical specifications extracted from the product name (CPU model, GPU, RAM, storage, screen size, etc.)
+   - Key features and benefits based on those real specs
+   - Who the product is ideal for
+   - Use markdown bold (**text**) for section headers and bullet points (•) for feature lists
 
-        // Helper to extract specs from title
-        const extractSpecs = (name: string) => {
-            const specs: string[] = [];
-            
-            // CPU detection
-            if (/i3|i5|i7|i9/i.test(name)) specs.push(`Powered by Intel Core ${name.match(/i[3579]-?\d+\w*/i)?.[0] || 'processor'}`);
-            if (/Ryzen [3579]/i.test(name)) specs.push(`Powered by AMD Ryzen ${name.match(/Ryzen [3579]-?\d+\w*/i)?.[0] || 'processor'}`);
-            
-            // GPU detection
-            if (/RTX|GTX/i.test(name)) specs.push(`Graphics: NVIDIA GeForce ${name.match(/(RTX|GTX)\s?\d+\d*(\s?Ti|Super)?/i)?.[0]}`);
-            if (/Radeon|RX/i.test(name)) specs.push(`Graphics: AMD Radeon ${name.match(/RX\s?\d+\d*(\s?XT)?/i)?.[0]}`);
-            
-            // RAM detection
-            if (/\d+GB/i.test(name)) {
-                const ram = name.match(/(\d+)GB/i);
-                if (ram && parseInt(ram[1]) <= 128) specs.push(`Memory: ${ram[0]} High-Speed RAM`);
+Important rules:
+- Extract and use REAL specs from the product name. If the name says "i7-13700K RTX 4070 32GB", mention those exact specs.
+- Do NOT invent specs that are not in the product name. If a spec is not mentioned, say "contact us for full specifications" rather than making something up.
+- Prices are in South African Rand (R).
+- Be professional but approachable. Write for a South African audience.
+- The category is "${category || "General"}" - tailor the description style accordingly.
+
+Respond ONLY with valid JSON in this exact format:
+{"shortDescription": "...", "description": "..."}`;
+
+        const response = await openai.chat.completions.create({
+            model: "gpt-5-mini",
+            messages: [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: `Generate product descriptions for: "${title}" in the "${category || "General"}" category.` }
+            ],
+            max_completion_tokens: 8192,
+            response_format: { type: "json_object" },
+        });
+
+        const content = response.choices[0]?.message?.content || "";
+
+        let parsed;
+        try {
+            const jsonMatch = content.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+                parsed = JSON.parse(jsonMatch[0]);
+            } else {
+                throw new Error("No JSON found in response");
             }
-            
-            // Storage detection
-            if (/\d+TB/i.test(name)) specs.push(`Storage: ${name.match(/\d+TB/i)?.[0]} NVMe SSD`);
-            if (/\d+GB\sSSD/i.test(name)) specs.push(`Storage: ${name.match(/\d+GB/i)?.[0]} SSD`);
-
-            return specs;
+        } catch {
+            console.error("Failed to parse AI response:", content);
+            return NextResponse.json({ error: "Failed to parse AI response" }, { status: 500 });
         }
 
-        const specs = extractSpecs(title);
-        const specList = specs.length > 0 ? specs.map(s => `• **${s.split(':')[0]}:**${s.split(':')[1] || s}`).join('\n') : "• **High-Performance Components:** Optimized for modern workloads.\n• **Reliable Build:** Tested for stability and longevity.";
-
-        if (category === "Prebuilt PCs") {
-            shortDescription = `${title}: A professional-grade gaming and workstation PC featuring ${specs[0] || 'high-end components'} for ultimate performance.`;
-
-            description = `**Unleash Extreme Performance**
-The ${title} is a powerhouse designed for elite gaming, streaming, and professional content creation. Every component is selected to eliminate bottlenecks, ensuring smooth 4K gaming and lightning-fast render times.
-
-**Thermal Management & Design**
-Built in a premium chassis with optimized airflow patterns to keep your hardware running at peak clocks even during marathon sessions. The tempered glass showcase and synchronized RGB lighting make it the centerpiece of any setup.
-
-**Technical Specifications & Features:**
-${specList}
-• **Motherboard:** High-stability chipset with modern connectivity.
-• **Cooling:** Advanced thermal solution for silent operation.
-• **Power Supply:** 80+ Gold certified efficiency.
-• **Warranty:** Fully backed by our local technical support.`;
-
-        } else if (category === "Laptops") {
-            shortDescription = `Portable power redefined. The ${title} delivers desktop-class performance in a sleek, mobile form factor.`;
-
-            description = `**Desktop Power, Mobile Freedom**
-The ${title} brings uncompromising performance to your backpack. Whether you're a pro-gamer on the circuit or a creative professional on site, this machine provides the raw horsepower needed for demanding applications without the bulk.
-
-**Pro-Grade Display**
-Features a high-accuracy, high-refresh rate panel that brings your content to life with vivid colors and ultra-smooth motion. Perfect for competitive gaming and color-critical creative work.
-
-**Hardware Highlights:**
-${specList}
-• **Display:** High-refresh rate, low-latency panel.
-• **Keyboard:** Tactile, backlit keys designed for precision.
-• **Battery:** Optimized for extended use away from the outlet.
-• **I/O:** Full suite of modern ports for all your peripherals.`;
-
-        } else if (category === "Components") {
-            shortDescription = `Upgrade your system with the ${title}. Precision-engineered for maximum speed and compatibility.`;
-
-            description = `**The Heart of Your Next Upgrade**
-Push your system to its next level with the ${title}. This component represents the pinnacle of hardware engineering, offering the stability and speed required by overclockers and professionals alike.
-
-**Reliability by Design**
-Each unit undergoes rigorous stress testing to ensure it meets our strict quality standards. Compatible with all modern platforms and designed for easy integration into your existing setup.
-
-**Key Specifications:**
-${specList}
-• **Efficiency:** Optimized power delivery and low heat output.
-• **Durability:** Built with high-grade capacitors and PCB materials.
-• **Compatibility:** Verified across major motherboard and system platforms.`;
-
-        } else {
-            shortDescription = `Enhance your tech setup with the ${title}, where premium build quality meets everyday reliability.`;
-
-            description = `**Premium Quality & Functional Design**
-The ${title} is designed to improve your workflow and digital experience. Combining ergonomic features with a durable build, it's the perfect addition to any modern tech environment.
-
-**Performance You Can Trust**
-Tested for consistent, daily use. This product delivers a frustration-free experience with a focus on long-term reliability and user comfort.
-
-**Product Features:**
-${specList}
-• **Build Quality:** Premium materials for a professional feel.
-• **Ease of Use:** Plug-and-play compatibility.
-• **Value:** The perfect balance of performance and price.`;
-        }
-
-
-        // Simulate network delay for realism
-        await new Promise(resolve => setTimeout(resolve, 1500));
-
-        return NextResponse.json({ description, shortDescription });
+        return NextResponse.json({
+            description: parsed.description || "",
+            shortDescription: parsed.shortDescription || ""
+        });
 
     } catch (error) {
         console.error("AI Generation error:", error);
