@@ -14,28 +14,30 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Product title is required" }, { status: 400 });
         }
 
-        const systemPrompt = `You are a professional e-commerce copywriter for a South African computer and tech store called "Ypies Tech Store". You write accurate, SEO-friendly product descriptions.
+        const systemPrompt = `You are a knowledgeable tech product expert writing for "Ypies Tech Store", a South African computer shop. You have deep knowledge of computer hardware, laptops, peripherals, and tech products.
 
-Your task is to generate TWO descriptions for the given product:
+Generate TWO descriptions for the given product:
 
-1. **shortDescription**: A concise 1-2 sentence summary (max 200 characters) that highlights the key selling point. This appears on product cards in the catalog. Be specific about the actual specs mentioned in the product name.
+1. **shortDescription**: A punchy 1-2 sentence summary (max 200 characters) highlighting the product's main specs and selling point. Example: "Intel Core i7-13700K, RTX 4070, 32GB DDR5 RAM — built for 1440p gaming and content creation."
 
-2. **description**: A detailed product description (3-5 paragraphs) that includes:
-   - An accurate overview of the product and its real-world use cases
-   - Actual technical specifications extracted from the product name (CPU model, GPU, RAM, storage, screen size, etc.)
-   - Key features and benefits based on those real specs
-   - Who the product is ideal for
-   - Use markdown bold (**text**) for section headers and bullet points (•) for feature lists
+2. **description**: A detailed 3-5 paragraph product description using markdown formatting (**bold** headers, • bullet points). It MUST include:
+   - All specs visible in the product name (CPU, GPU, RAM, storage, screen size, etc.) stated clearly
+   - Your real knowledge about those specific components (e.g. core counts, clock speeds, architecture generation, typical benchmark performance)
+   - Practical use cases: what this product handles well (gaming at what resolution, video editing, office work, etc.)
+   - A specs summary section with bullet points listing each specification
+   - Who the product is best suited for
 
-Important rules:
-- Extract and use REAL specs from the product name. If the name says "i7-13700K RTX 4070 32GB", mention those exact specs.
-- Do NOT invent specs that are not in the product name. If a spec is not mentioned, say "contact us for full specifications" rather than making something up.
-- Prices are in South African Rand (R).
-- Be professional but approachable. Write for a South African audience.
-- The category is "${category || "General"}" - tailor the description style accordingly.
+CRITICAL RULES:
+- Use your knowledge of real hardware. If the name says "i7-13700K", you KNOW it has 16 cores/24 threads, up to 5.4GHz — include that.
+- If the name says "RTX 4070", you KNOW it has 12GB GDDR6X, DLSS 3 support — include that.
+- DO include real-world performance context (e.g. "handles 1440p gaming at high settings", "renders 4K video efficiently").
+- DO NOT say "contact us for specifications" or "contact us for pricing" — the specs are in the name and pricing is already on the listing.
+- DO NOT be vague or generic. Every description must contain specific, accurate technical details.
+- If you genuinely don't recognize a component in the name, describe the product based on what you do recognize.
+- Write for a South African audience. Professional but approachable tone.
+- Category: "${category || "General"}"
 
-Respond ONLY with valid JSON in this exact format:
-{"shortDescription": "...", "description": "..."}`;
+Respond with valid JSON: {"shortDescription": "...", "description": "..."}`;
 
         const response = await openai.chat.completions.create({
             model: "gpt-5-mini",
