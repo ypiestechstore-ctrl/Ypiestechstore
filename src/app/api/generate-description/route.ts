@@ -31,10 +31,12 @@ CRITICAL RULES:
 - Use your knowledge of real hardware. If the name says "i7-13700K", you KNOW it has 16 cores/24 threads, up to 5.4GHz — include that.
 - If the name says "RTX 4070", you KNOW it has 12GB GDDR6X, DLSS 3 support — include that.
 - DO include real-world performance context (e.g. "handles 1440p gaming at high settings", "renders 4K video efficiently").
-- DO NOT say "contact us for specifications" or "contact us for pricing" — the specs are in the name and pricing is already on the listing.
+- NEVER say "contact us", "contact Ypies", "contact the store", "check availability", "enquire about stock", or anything similar. The product listing already shows the price and stock. Your job is ONLY to describe the product itself.
+- NEVER mention pricing, stock availability, or store contact info in any form.
 - DO NOT be vague or generic. Every description must contain specific, accurate technical details.
-- If you genuinely don't recognize a component in the name, describe the product based on what you do recognize.
+- If you genuinely don't recognize a component in the name, describe the product based on what you do recognize and skip unknown parts.
 - Write for a South African audience. Professional but approachable tone.
+- End the description with a summary of who the product is ideal for — do NOT end with any call-to-action or store references.
 - Category: "${category || "General"}"
 
 Respond with valid JSON: {"shortDescription": "...", "description": "..."}`;
