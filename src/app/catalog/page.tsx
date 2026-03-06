@@ -8,6 +8,7 @@ export default async function CatalogPage({
     searchParams: Promise<{ category?: string; search?: string; minPrice?: string; maxPrice?: string; stockStatus?: string }>;
 }) {
     const { category, search, minPrice, maxPrice, stockStatus } = await searchParams;
+    const trimmedCategory = category?.trim();
 
     const where: Prisma.ProductWhereInput = {};
 
@@ -23,12 +24,10 @@ export default async function CatalogPage({
         // 'all' or no stockStatus = show everything
     }
 
-    if (category) {
+    if (trimmedCategory) {
         // Find category and its children IDs
-        // We look up by name as the URL param is likely a name slug, but ideally should be ID or slug.
-        // Using name for backward compatibility with current implementation.
         const cat = await prisma.category.findFirst({
-            where: { name: category },
+            where: { name: { equals: trimmedCategory, mode: 'insensitive' } },
             include: { children: { include: { children: true } } }
         });
 
@@ -43,12 +42,14 @@ export default async function CatalogPage({
                 }
             });
 
-            where.categories = {
-                some: { id: { in: catIds } }
-            };
+            // Use OR to match either the relational link OR the legacy string field
+            where.OR = [
+                { categories: { some: { id: { in: catIds } } } },
+                { category: { equals: trimmedCategory, mode: 'insensitive' } }
+            ];
         } else {
             // Fallback: try legacy string match if relation lookup failed
-            where.category = category;
+            where.category = { equals: trimmedCategory, mode: 'insensitive' };
         }
     }
 
