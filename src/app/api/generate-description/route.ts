@@ -20,14 +20,15 @@ Generate TWO descriptions for the given product:
 
 1. **shortDescription**: A punchy 1-2 sentence summary (max 200 characters) highlighting the product's main specs and selling point. Example: "Intel Core i7-13700K, RTX 4070, 32GB DDR5 RAM — built for 1440p gaming and content creation."
 
-2. **description**: A detailed 3-5 paragraph product description using markdown formatting (**bold** headers, • bullet points). It MUST include:
+2. **description**: A detailed product description (3-5 paragraphs) using HTML formatting (use <h3> for headers, <p> for paragraphs, <ul> and <li> for feature lists). It MUST include:
    - All specs visible in the product name (CPU, GPU, RAM, storage, screen size, etc.) stated clearly
    - Your real knowledge about those specific components (e.g. core counts, clock speeds, architecture generation, typical benchmark performance)
    - Practical use cases: what this product handles well (gaming at what resolution, video editing, office work, etc.)
-   - A specs summary section with bullet points listing each specification
+   - A specs summary section with a <ul> list
    - Who the product is best suited for
 
 CRITICAL RULES:
+- Use HTML tags for formatting: <h3> for section headers, <p> for text, <ul>/<li> for lists.
 - Use your knowledge of real hardware. If the name says "i7-13700K", you KNOW it has 16 cores/24 threads, up to 5.4GHz — include that.
 - If the name says "RTX 4070", you KNOW it has 12GB GDDR6X, DLSS 3 support — include that.
 - DO include real-world performance context (e.g. "handles 1440p gaming at high settings", "renders 4K video efficiently").

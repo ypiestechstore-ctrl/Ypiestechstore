@@ -37,9 +37,10 @@ export function ProductCard({ product }: ProductCardProps) {
                 <Link href={`/product/${product.id}`}>
                     <CardTitle className="line-clamp-1 hover:underline">{product.name}</CardTitle>
                 </Link>
-                <CardDescription className="line-clamp-2">
-                    {product.description}
-                </CardDescription>
+                <CardDescription 
+                    className="line-clamp-2"
+                    dangerouslySetInnerHTML={{ __html: product.description }}
+                />
             </CardHeader>
             <CardContent className="flex-1">
                 <p className="text-xl font-bold text-primary">

@@ -83,7 +83,10 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
                     <div className="pt-8 border-t space-y-3">
                         <h3 className="font-semibold text-lg">Product Details</h3>
-                        <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">{product.description}</p>
+                        <div 
+                            className="text-muted-foreground leading-relaxed prose prose-sm max-w-none dark:prose-invert"
+                            dangerouslySetInnerHTML={{ __html: product.description }}
+                        />
                     </div>
                 </div>
             </div>
