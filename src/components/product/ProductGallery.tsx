@@ -25,6 +25,7 @@ export function ProductGallery({ mainImage, additionalImages = [], productName }
                     fill
                     className="object-contain"
                     priority
+                    unoptimized
                 />
             </div>
 
@@ -44,6 +45,7 @@ export function ProductGallery({ mainImage, additionalImages = [], productName }
                                 alt={`${productName} thumbnail ${idx + 1}`}
                                 fill
                                 className="object-cover"
+                                unoptimized
                             />
                         </button>
                     ))}
