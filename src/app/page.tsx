@@ -10,7 +10,6 @@ export default async function Home() {
   const featuredProducts = await prisma.product.findMany({
     where: {
       isFeatured: true,
-      stock: { gt: 0 }
     }
   });
 

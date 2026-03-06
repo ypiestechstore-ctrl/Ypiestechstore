@@ -9,10 +9,9 @@ export default async function CatalogPage({
 }) {
     const { category, search, minPrice, maxPrice, stockStatus } = await searchParams;
 
-    // Default to hiding out-of-stock unless specifically requested or filtering by 'out_of_stock'
     const where: Prisma.ProductWhereInput = {};
 
-    // Stock Status Logic
+    // Stock Status Logic — only filter when explicitly requested
     if (stockStatus) {
         if (stockStatus === 'in_stock') {
             where.stock = { gt: 0 };
@@ -20,12 +19,8 @@ export default async function CatalogPage({
             where.stock = { lte: 0 };
         } else if (stockStatus === 'supplier') {
             where.isSupplierStock = true;
-        } else if (stockStatus === 'all') {
-            // No stock filter
         }
-    } else {
-        // Default behavior: show only in-stock items
-        where.stock = { gt: 0 };
+        // 'all' or no stockStatus = show everything
     }
 
     if (category) {
