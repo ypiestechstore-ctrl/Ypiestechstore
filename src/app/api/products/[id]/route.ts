@@ -40,12 +40,19 @@ export async function PUT(
                 price: parseFloat(price),
                 category,
                 image,
-                stock: parseInt(stock),
+                stock: parseInt(stock) || 0,
                 sku: sku || null,
                 isFeatured,
-                costPrice: parseFloat(costPrice),
+                costPrice: parseFloat(costPrice) || 0,
                 warrantyPeriod,
                 condition,
+                categories: {
+                    set: [], // Clear existing relations
+                    connectOrCreate: {
+                        where: { name: category },
+                        create: { name: category }
+                    }
+                },
                 images: {
                     deleteMany: {},
                     create: (additionalImages || []).map((url: string) => ({ url }))
