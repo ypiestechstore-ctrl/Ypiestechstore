@@ -33,19 +33,24 @@ export default async function CatalogPage({
 
         if (cat) {
             const catIds = [cat.id];
+            const catNames = [cat.name];
             // Add Level 1 children
             cat.children.forEach((c) => {
                 catIds.push(c.id);
+                catNames.push(c.name);
                 // Add Level 2 children
                 if (c.children) {
-                    c.children.forEach((cc) => catIds.push(cc.id));
+                    c.children.forEach((cc) => {
+                        catIds.push(cc.id);
+                        catNames.push(cc.name);
+                    });
                 }
             });
 
             // Use OR to match either the relational link OR the legacy string field
             where.OR = [
                 { categories: { some: { id: { in: catIds } } } },
-                { category: { equals: trimmedCategory, mode: 'insensitive' } }
+                { category: { in: catNames, mode: 'insensitive' } }
             ];
         } else {
             // Fallback: try legacy string match if relation lookup failed
