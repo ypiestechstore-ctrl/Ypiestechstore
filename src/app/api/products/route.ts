@@ -38,17 +38,20 @@ export async function POST(request: Request) {
                 warrantyPeriod: warrantyPeriod || null,
                 condition: condition || "New",
 
-                categories: body.categoryIds && Array.isArray(body.categoryIds) ? {
-                    connect: body.categoryIds.map((id: string) => ({ id }))
-                } : undefined,
+                categories: {
+                    connectOrCreate: {
+                        where: { name: category },
+                        create: { name: category }
+                    }
+                },
 
                 images: {
                     create: (body.additionalImages || []).map((url: string) => ({ url }))
                 }
             },
             include: {
-
-                images: true
+                images: true,
+                categories: true
             }
         });
 
