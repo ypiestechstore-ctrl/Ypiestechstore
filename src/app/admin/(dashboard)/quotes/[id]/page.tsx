@@ -143,6 +143,14 @@ export default function EditQuotePage() {
         setItems(newItems);
     };
 
+    const handleSerialChange = (itemIndex: number, serialIndex: number, value: string) => {
+        const newItems = [...items];
+        const serials = [...(newItems[itemIndex].serialNumbers || [])];
+        serials[serialIndex] = value;
+        newItems[itemIndex] = { ...newItems[itemIndex], serialNumbers: serials };
+        setItems(newItems);
+    };
+
     const handleRemoveItem = (index: number) => {
         setItems(items.filter((_, i) => i !== index));
     };
@@ -379,96 +387,108 @@ export default function EditQuotePage() {
                         <CardTitle>Quote Items</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Item</TableHead>
-                                    <TableHead>Warranty</TableHead>
-                                    <TableHead>Price</TableHead>
-                                    <TableHead>Qty</TableHead>
-                                    <TableHead>Total</TableHead>
-                                    <TableHead></TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {items.map((item, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>
-                                            <div className="flex flex-col gap-1">
-                                                {item.isCustom ? (
-                                                    <Input
-                                                        value={item.name}
-                                                        onChange={(e) => handleUpdateItemField(index, "name", e.target.value)}
-                                                        className="h-8 w-full min-w-[150px]"
-                                                    />
-                                                ) : (
-                                                    <span>{item.name}</span>
-                                                )}
-                                                <span className="text-xs text-muted-foreground">{item.isCustom ? 'Custom' : 'Product'}</span>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
+                        <div className="space-y-3">
+                            {items.map((item, index) => (
+                                <div key={index} className="border rounded-lg p-3 space-y-2 bg-muted/20">
+                                    <div className="flex items-start gap-2">
+                                        <div className="flex-1 min-w-0">
+                                            {item.isCustom ? (
+                                                <Input
+                                                    value={item.name}
+                                                    onChange={(e) => handleUpdateItemField(index, "name", e.target.value)}
+                                                    className="h-8 w-full font-medium"
+                                                    placeholder="Item name"
+                                                />
+                                            ) : (
+                                                <p className="font-medium text-sm truncate">{item.name}</p>
+                                            )}
+                                            <span className="text-xs text-muted-foreground">{item.isCustom ? 'Custom' : 'Product'}</span>
+                                        </div>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => handleRemoveItem(index)}
+                                            className="text-red-500 hover:text-red-700 shrink-0"
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+
+                                    <div className="grid grid-cols-3 gap-2 text-sm">
+                                        <div>
+                                            <span className="text-xs text-muted-foreground block">Warranty</span>
                                             {item.isCustom ? (
                                                 <Input
                                                     value={item.warranty || ""}
                                                     onChange={(e) => handleUpdateItemField(index, "warranty", e.target.value)}
-                                                    className="h-8 w-24"
+                                                    className="h-7 text-xs"
                                                     placeholder="-"
                                                 />
                                             ) : (
-                                                item.warranty || "-"
+                                                <span>{item.warranty || "-"}</span>
                                             )}
-                                        </TableCell>
-                                        <TableCell>
+                                        </div>
+                                        <div>
+                                            <span className="text-xs text-muted-foreground block">Price</span>
                                             {item.isCustom ? (
                                                 <div className="flex items-center">
-                                                    <span className="mr-1">R</span>
+                                                    <span className="mr-1 text-xs">R</span>
                                                     <Input
                                                         type="number"
                                                         value={item.price}
                                                         onChange={(e) => handleUpdateItemField(index, "price", parseFloat(e.target.value))}
-                                                        className="h-8 w-24"
+                                                        className="h-7 text-xs"
                                                     />
                                                 </div>
                                             ) : (
-                                                `R ${item.price.toLocaleString()}`
+                                                <span>R {item.price.toLocaleString()}</span>
                                             )}
-                                        </TableCell>
-                                        <TableCell>
+                                        </div>
+                                        <div>
+                                            <span className="text-xs text-muted-foreground block">Qty</span>
                                             <Input
                                                 type="number"
                                                 min="1"
                                                 value={item.quantity}
                                                 onChange={(e) => handleUpdateItemQuantity(index, parseInt(e.target.value))}
-                                                className="w-16 h-8"
+                                                className="h-7 w-16 text-xs"
                                             />
-                                        </TableCell>
-                                        <TableCell>R {(item.price * item.quantity).toLocaleString()}</TableCell>
-                                        <TableCell>
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => handleRemoveItem(index)}
-                                                className="text-red-500 hover:text-red-700"
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                                {items.length > 0 && (
-                                    <TableRow>
-                                        <TableCell colSpan={3} className="text-right font-bold text-lg">Total:</TableCell>
-                                        <TableCell className="font-bold text-lg">R {calculateTotal().toLocaleString()}</TableCell>
-                                        <TableCell></TableCell>
-                                    </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
+                                        </div>
+                                    </div>
+
+                                    <div className="text-xs font-medium text-right text-primary">
+                                        Total: R {(item.price * item.quantity).toLocaleString()}
+                                    </div>
+
+                                    {item.productId && (
+                                        <div className="border-t pt-2 space-y-1">
+                                            <span className="text-xs font-medium text-muted-foreground">Serial Numbers (optional — {(item.serialNumbers?.filter(s => s?.trim()).length || 0)}/{item.quantity} entered)</span>
+                                            <div className="grid grid-cols-2 gap-1">
+                                                {Array.from({ length: item.quantity }).map((_, idx) => (
+                                                    <Input
+                                                        key={idx}
+                                                        placeholder={`Serial #${idx + 1}`}
+                                                        value={item.serialNumbers?.[idx] || ""}
+                                                        onChange={(e) => handleSerialChange(index, idx, e.target.value)}
+                                                        className="h-7 text-xs font-mono"
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+
+                            {items.length > 0 && (
+                                <div className="text-right font-bold text-lg border-t pt-3">
+                                    Total: R {calculateTotal().toLocaleString()}
+                                </div>
+                            )}
+                        </div>
 
                         <div className="mt-6 flex justify-end gap-3">
                             <Button onClick={handleUpdateQuote} disabled={isSaving || items.length === 0}>
-                                {isSaving ? "Updating..." : "Update Quote"}
+                                {isSaving ? "Updating..." : "Save Quote"}
                             </Button>
                         </div>
                     </CardContent>

@@ -74,7 +74,16 @@ export default function QuotesPage() {
             if (res.ok) {
                 const quote = await res.json();
                 setConvertingQuote(quote);
-                setSerialInputs({});
+                // Pre-fill serial inputs from saved serial numbers on each item
+                const preFilled: Record<string, string[]> = {};
+                if (quote.items) {
+                    for (const item of quote.items) {
+                        if (item.productId && item.serialNumbers && item.serialNumbers.length > 0) {
+                            preFilled[item.id] = [...item.serialNumbers];
+                        }
+                    }
+                }
+                setSerialInputs(preFilled);
                 setIsConvertSheetOpen(true);
             } else {
                 alert("Failed to fetch quote details");
@@ -99,23 +108,29 @@ export default function QuotesPage() {
     const handleConfirmConvert = async () => {
         if (!convertingQuote) return;
 
-        // Validation: Check if all serials are filled for products
-        // (Assuming all products require serials)
+        // Check for missing serials and warn (but don't block)
         if (convertingQuote.items) {
+            const missingSerials: string[] = [];
             for (const item of convertingQuote.items) {
                 if (item.productId) {
                     const serials = serialInputs[item.id] || [];
-                    // Clean empty strings
                     const filledSerials = serials.filter(s => s && s.trim() !== "");
                     if (filledSerials.length < item.quantity) {
-                        alert(`Please enter all serial numbers for ${item.name}`);
-                        return;
+                        missingSerials.push(`${item.name} (${filledSerials.length}/${item.quantity} serials entered)`);
                     }
                 }
             }
+            if (missingSerials.length > 0) {
+                const proceed = confirm(
+                    `Warning: The following items are missing serial numbers:\n\n${missingSerials.join("\n")}\n\nYou can still convert — serial numbers can be assigned later. Continue?`
+                );
+                if (!proceed) return;
+            } else {
+                if (!confirm("Confirm conversion to Invoice? This will deduct stock.")) return;
+            }
+        } else {
+            if (!confirm("Confirm conversion to Invoice? This will deduct stock.")) return;
         }
-
-        if (!confirm("Confirm conversion to Invoice? This will deduct stock.")) return;
 
         setIsConverting(true);
         try {
@@ -252,31 +267,40 @@ export default function QuotesPage() {
                     {convertingQuote && (
                         <div className="py-6 space-y-6">
                             <div className="space-y-4">
-                                {convertingQuote.items?.map((item) => (
-                                    <div key={item.id} className="p-4 border rounded-lg bg-slate-50">
-                                        <div className="flex justify-between mb-2">
-                                            <span className="font-medium">{item.name}</span>
-                                            <span className="text-sm text-muted-foreground">Qty: {item.quantity}</span>
-                                        </div>
-
-                                        {item.productId ? (
-                                            <div className="space-y-2">
-                                                <Label className="text-xs text-muted-foreground">Serial Numbers</Label>
-                                                {Array.from({ length: item.quantity }).map((_, idx) => (
-                                                    <Input
-                                                        key={`${item.id}-${idx}`}
-                                                        placeholder={`Serial Number #${idx + 1}`}
-                                                        value={serialInputs[item.id]?.[idx] || ""}
-                                                        onChange={(e) => handleSerialChange(item.id, idx, e.target.value)}
-                                                        className="h-8"
-                                                    />
-                                                ))}
+                                {convertingQuote.items?.map((item) => {
+                                    const filledCount = (serialInputs[item.id] || []).filter(s => s?.trim()).length;
+                                    const allFilled = item.productId ? filledCount >= item.quantity : true;
+                                    return (
+                                        <div key={item.id} className={`p-4 border rounded-lg ${item.productId && !allFilled ? 'bg-amber-50 border-amber-200' : 'bg-slate-50'}`}>
+                                            <div className="flex justify-between mb-2">
+                                                <span className="font-medium">{item.name}</span>
+                                                <span className="text-sm text-muted-foreground">Qty: {item.quantity}</span>
                                             </div>
-                                        ) : (
-                                            <p className="text-xs text-muted-foreground italic">No serials required (Custom Item)</p>
-                                        )}
-                                    </div>
-                                ))}
+
+                                            {item.productId ? (
+                                                <div className="space-y-2">
+                                                    <div className="flex items-center justify-between">
+                                                        <Label className="text-xs text-muted-foreground">Serial Numbers (optional)</Label>
+                                                        <span className={`text-xs font-medium ${allFilled ? 'text-green-600' : 'text-amber-600'}`}>
+                                                            {filledCount}/{item.quantity} entered
+                                                        </span>
+                                                    </div>
+                                                    {Array.from({ length: item.quantity }).map((_, idx) => (
+                                                        <Input
+                                                            key={`${item.id}-${idx}`}
+                                                            placeholder={`Serial Number #${idx + 1} (optional)`}
+                                                            value={serialInputs[item.id]?.[idx] || ""}
+                                                            onChange={(e) => handleSerialChange(item.id, idx, e.target.value)}
+                                                            className="h-8 font-mono text-sm"
+                                                        />
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <p className="text-xs text-muted-foreground italic">No serials required (Custom Item)</p>
+                                            )}
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
                     )}

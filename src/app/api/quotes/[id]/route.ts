@@ -11,7 +11,8 @@ export async function GET(
             where: { id },
             include: {
                 items: true,
-                user: true
+                user: true,
+                salesPerson: true
             }
         });
 
@@ -50,7 +51,8 @@ export async function PUT(
                     quantity: item.quantity,
                     isCustom: item.isCustom || false,
                     warranty: item.warranty,
-                    productId: item.productId // Optional link
+                    productId: item.productId,
+                    serialNumbers: item.serialNumbers || []
                 }))
             });
 

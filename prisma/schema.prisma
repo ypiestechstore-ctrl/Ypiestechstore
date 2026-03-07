@@ -125,15 +125,16 @@ model Quote {
 }
 
 model QuoteItem {
-  id          String  @id @default(uuid())
-  quoteId     String
-  quote       Quote   @relation(fields: [quoteId], references: [id])
-  productId   String?
-  name        String
-  price       Float
-  quantity    Int
-  isCustom    Boolean @default(false)
-  warranty    String?
+  id            String   @id @default(uuid())
+  quoteId       String
+  quote         Quote    @relation(fields: [quoteId], references: [id])
+  productId     String?
+  name          String
+  price         Float
+  quantity      Int
+  isCustom      Boolean  @default(false)
+  warranty      String?
+  serialNumbers String[]
 }
 
 model Invoice {

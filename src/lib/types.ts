@@ -22,6 +22,7 @@ export interface QuoteItem {
     quantity: number;
     isCustom: boolean;
     warranty?: string;
+    serialNumbers?: string[];
 }
 
 export interface Quote {
