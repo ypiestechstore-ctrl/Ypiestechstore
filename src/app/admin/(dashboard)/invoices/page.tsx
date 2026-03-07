@@ -41,6 +41,14 @@ export default function InvoicesPage() {
         }
     };
 
+    const handleDownloadPDF = async (invoice: Invoice) => {
+        const invoiceWithItems = {
+            ...invoice,
+            items: (invoice as any).quote?.items || []
+        };
+        await generateInvoicePDF(invoiceWithItems);
+    };
+
     const handleDelete = async (id: string) => {
         if (!isSuperAdmin) return;
         if (!confirm("Are you sure you want to delete this invoice?")) return;
@@ -138,7 +146,7 @@ export default function InvoicesPage() {
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex justify-end gap-2">
-                                            <Button variant="ghost" size="sm" onClick={() => generateInvoicePDF(invoice)}>
+                                            <Button variant="ghost" size="sm" onClick={() => handleDownloadPDF(invoice)}>
                                                 <Download className="h-4 w-4" />
                                             </Button>
 
