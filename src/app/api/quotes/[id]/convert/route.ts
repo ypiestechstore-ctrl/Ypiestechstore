@@ -49,26 +49,49 @@ export async function POST(
             // 3. Deduct Stock & Assign Serials
             for (const item of quote.items) {
                 if (item.productId) {
-                    // Decrement Stock
-                    await tx.product.update({
-                        where: { id: item.productId },
-                        data: { stock: { decrement: item.quantity } }
+                    // Check if product exists before trying to update
+                    const product = await tx.product.findUnique({
+                        where: { id: item.productId }
                     });
 
+                    if (product) {
+                        // Decrement Stock
+                        await tx.product.update({
+                            where: { id: item.productId },
+                            data: { stock: { decrement: item.quantity } }
+                        });
+                    }
+
                     // Assign Serials
-                    // Frontend should send map: { [quoteItemId]: ["SN1", "SN2"] }
+                    // Frontend sends map: { [quoteItemId]: ["SN1", "SN2"] }
                     const itemSerials = serialNumbers[item.id];
                     if (itemSerials && Array.isArray(itemSerials)) {
                         for (const serial of itemSerials) {
-                            // Verify existence/status could be done here, but trusting inputs for now or letting it fail if invalid
-                            await tx.serialNumber.update({
-                                where: { serial },
-                                data: {
-                                    status: "SOLD",
-                                    soldAt: new Date(),
-                                    invoiceId: invoice.id
-                                }
-                            });
+                            if (!serial || serial.trim() === "") continue;
+                            
+                            // Try to find the serial number
+                            const sn = await tx.serialNumber.findUnique({ where: { serial } });
+                            if (sn) {
+                                await tx.serialNumber.update({
+                                    where: { serial },
+                                    data: {
+                                        status: "SOLD",
+                                        soldAt: new Date(),
+                                        invoiceId: invoice.id
+                                    }
+                                });
+                            } else {
+                                // If serial doesn't exist in DB, we create it to track it
+                                await tx.serialNumber.create({
+                                    data: {
+                                        serial,
+                                        productId: item.productId,
+                                        status: "SOLD",
+                                        soldAt: new Date(),
+                                        invoiceId: invoice.id
+                                    }
+                                });
+                            }
                         }
                     }
                 }
