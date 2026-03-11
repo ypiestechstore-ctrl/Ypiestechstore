@@ -15,7 +15,7 @@ export default function AboutPage() {
                     <h2 className="text-3xl font-bold">Who We Are</h2>
                     <div className="text-lg text-muted-foreground space-y-4">
                         <p>
-                            Founded by a dedicated team of tech enthusiasts and PC builders, Ypiestechstore was born from a passion to deliver the ultimate computing experience. We understand that whether you're dominating a game on a cutting-edge gaming rig or tackling a deadline on a reliable standard PC, performance and reliability are paramount.
+                            Founded by a dedicated team of tech enthusiasts and PC builders, Ypiestechstore was born from a passion to deliver the ultimate computing experience. We understand that whether you&apos;re dominating a game on a cutting-edge gaming rig or tackling a deadline on a reliable standard PC, performance and reliability are paramount.
                         </p>
                         <p>
                             We are a team of passionate gamers dedicated to making high-quality gaming accessible to everyone in South Africa. We leverage our love for gaming and technical expertise to source, build, and deliver powerful, yet budget-friendly machines.
@@ -67,7 +67,7 @@ export default function AboutPage() {
             <div className="bg-primary/5 rounded-2xl p-8 md:p-12 text-center space-y-6">
                 <h2 className="text-3xl font-bold">Our Mission</h2>
                 <p className="text-xl max-w-3xl mx-auto">
-                    To provide top-quality refurbished and pre-owned technology that performs exceptionally well but costs significantly less than buying new. We believe that accessing powerful, reliable tech shouldn't require a premium price tag.
+                    To provide top-quality refurbished and pre-owned technology that performs exceptionally well but costs significantly less than buying new. We believe that accessing powerful, reliable tech shouldn&apos;t require a premium price tag.
                 </p>
             </div>
         </div>
