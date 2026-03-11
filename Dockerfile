@@ -17,6 +17,11 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# Dummy environment variables for build-time (Required for SSG/Metadata)
+ENV DATABASE_URL="mysql://dummy:dummy@localhost:3306/dummy"
+ENV OPENAI_API_KEY="sk-dummy"
+ENV NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="dummy"
+
 # Generate Prisma Client
 RUN npx prisma generate
 
