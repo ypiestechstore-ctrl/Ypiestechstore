@@ -27,7 +27,7 @@ export default async function CatalogPage({
     if (trimmedCategory) {
         // Find category and its children IDs
         const cat = await prisma.category.findFirst({
-            where: { name: { equals: trimmedCategory, mode: 'insensitive' } },
+            where: { name: { equals: trimmedCategory } },
             include: { children: { include: { children: true } } }
         });
 
@@ -50,11 +50,11 @@ export default async function CatalogPage({
             // Use OR to match either the relational link OR the legacy string field
             where.OR = [
                 { categories: { some: { id: { in: catIds } } } },
-                { category: { in: catNames, mode: 'insensitive' } }
+                { category: { in: catNames } }
             ];
         } else {
             // Fallback: try legacy string match if relation lookup failed
-            where.category = { equals: trimmedCategory, mode: 'insensitive' };
+            where.category = { equals: trimmedCategory };
         }
     }
 
