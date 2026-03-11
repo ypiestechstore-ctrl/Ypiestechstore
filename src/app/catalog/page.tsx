@@ -1,4 +1,5 @@
 import { ProductList } from "@/components/catalog/ProductList";
+export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 

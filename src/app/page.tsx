@@ -1,4 +1,5 @@
 import Link from "next/link";
+export const dynamic = "force-dynamic";
 import { Button } from "@/components/ui/button";
 import { InteractiveHero } from "@/components/interactive/InteractiveHero";
 import { FeaturedProducts } from "@/components/home/FeaturedProducts";
